@@ -1,0 +1,46 @@
+Independent untouched-base check
+Date: 2026-10-30
+Platform: Windows; Python 3.13.5
+Base commit: bd665f28ad637cd256074ce74cf1e7607c4bceb8
+Checkout: detached work/pr-base, created directly from that commit.
+git status --porcelain=v1: empty before and after the test.
+
+Command (run from the clean checkout):
+python -m unittest discover -s tests -p test_parity_runner.py
+
+Result: exit code 1; 40 tests ran in 0.277 seconds; 1 failure; 1 skipped.
+
+Failure:
+test_parity_runner.WorkspaceManifestTests.test_a_feature_of_a_workspace_crate_counts_through_its_sources
+tests/test_parity_runner.py:567
+Expected:
+  {"crates/horizon-items/Cargo.toml", "crates/horizon-client/Cargo.toml"}
+Actual:
+  set()
+
+The assertion reports both expected manifests absent from the actual set.
+This reproduces the reported LOD branch's Python check failure on the untouched
+upstream base, independently of the LOD, mesh-reuse and allocator patches.
+It establishes a baseline failure in this Windows/Python environment; it does
+not establish whether other environments fail, or the underlying cause.
+
+The unittest suite prints mock harness PASS/FAIL/RETRIED messages while testing
+the runner. Those messages are test-fixture output; no game or actual parity
+harness was launched by this command. No Cargo compilation was performed.
+Machine-specific absolute paths and temporary-directory names are omitted here.
+
+Independent optimized-renderer baseline check (root-run)
+Same untouched commit/check-out; root wrapper finished with exit code 1.
+Command:
+cargo test --profile fast -p horizon-client-render --lib gfx::tests::indirect_draws_are_validated_only_in_debug_builds_and_on_directx_12
+
+Result: 1 test ran and failed; 573 tests filtered out.
+Failure: gfx::tests::indirect_draws_are_validated_only_in_debug_builds_and_on_directx_12
+crates/horizon-client-render/src/gfx.rs:6013
+assertion `left == right` failed: left=true; right=false.
+Build completed successfully in the fast optimized profile before the failure.
+
+The same optimized-profile assertion was observed in the mesh-reuse branch.
+Reproducing it on the untouched base establishes that it predates these patches
+in this Windows environment. It is still a failed test and is not counted as a
+passing full suite. The debug-profile result can differ.

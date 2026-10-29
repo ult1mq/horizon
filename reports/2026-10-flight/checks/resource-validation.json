@@ -1,0 +1,12 @@
+{
+  "scope": "Actual PR build.rs compiled against cached winresource 0.1.34; minimal PE probes, no game launched",
+  "baseline_has_segment_heap": false,
+  "feature_manifest_resource_id": 1,
+  "source_and_extracted_manifest_validated_by": "Windows SDK 10.0.26100.0 mt.exe",
+  "extracted_manifest_validation": "Parsing of manifest successful.",
+  "segment_heap_namespace_and_value_verified": true,
+  "execution_level": "asInvoker; uiAccess=false",
+  "preserved_icon_and_version_resource_payloads": 9,
+  "non_windows_target_emits_no_windows_resources": true,
+  "manifest_sha256": "617c9e03275127455dfe1f7b1e8891efb7900e2ea7c7a467266efadfa0c19cbb"
+}
