@@ -1,0 +1,145 @@
+--- a/crates/horizon-client-render/src/streaming.rs
++++ b/crates/horizon-client-render/src/streaming.rs
+@@ -221,6 +221,21 @@
+     context: RwLock<Arc<WorkerContext>>,
+     done: Mailbox,
+ }
++/// Count actual jobs, including superseded sequences and unloaded columns,
++/// until their results are consumed. `meshing` only tracks the latest keys.
++#[derive(Default)]
++struct MeshJobs(usize);
++impl MeshJobs {
++    fn room(&self, workers: usize) -> usize {
++        (workers * 32).saturating_sub(self.0)
++    }
++    fn submitted(&mut self) {
++        self.0 += 1;
++    }
++    fn completed(&mut self) {
++        self.0 = self.0.checked_sub(1).expect("mesh result without a job");
++    }
++}
+ /// Finished jobs, from the workers to the game thread, in the order they
+ /// finished. Not an `mpsc` channel: its receiver waits for a sender it finds
+ /// half way through a send, and a worker descheduled there on a busy machine
+@@ -290,6 +305,7 @@
+     decorates: bool,
+     lighting: FxHashMap<(i32, i32), u64>,
+     meshing: FxHashMap<(i32, i32, i32), u64>,
++    mesh_jobs: MeshJobs,
+     /// Chunks whose light is current.
+     lit: FxHashSet<(i32, i32)>,
+     /// Columns whose sections have been meshed at least once.
+@@ -620,6 +636,7 @@
+             decorates: generator.decorates(),
+             lighting: Default::default(),
+             meshing: Default::default(),
++            mesh_jobs: MeshJobs::default(),
+             lit: Default::default(),
+             meshed: Default::default(),
+             waiting: Default::default(),
+@@ -1039,6 +1056,7 @@
+                     }
+                 }
+                 Done::Meshed(x, sy, z, mesh, seq) => {
++                    self.mesh_jobs.completed();
+                     if self.meshing.get(&(x, sy, z)) != Some(&seq) {
+                         stale.push(((x, sy, z), mesh));
+                         continue;
+@@ -1364,17 +1382,21 @@
+         // jobs went stale long before a worker reached them (#3629). What
+         // stays dirty is asked for again, from the current centre, as
+         // capacity frees; `requeue` then has a small queue to keep close.
+-        let room = (self.threads.len() * 32).saturating_sub(self.meshing.len());
++        let mut room = self.mesh_jobs.room(self.threads.len());
+         nearest_first(&mut candidates, room);
+         for (_, x, z, sections) in candidates {
++            if room == 0 {
++                break;
++            }
+             let Some(region) = Self::region(world, x, z) else {
+                 continue;
+             };
+-            world.dirty_sections.take_column(x, z);
+-            for sy in section_indexes(sections) {
++            let submitted = take_mesh_sections(world, x, z, sections, &mut room);
++            for sy in section_indexes(submitted) {
+                 let first = self.meshed.insert((x, z));
+                 self.sequence += 1;
+                 self.meshing.insert((x, sy, z), self.sequence);
++                self.mesh_jobs.submitted();
+                 self.submit(
+                     Some((x, z)),
+                     if first { 2 } else { 0 },
+@@ -1994,9 +2016,71 @@
+     }
+     candidates.sort_unstable();
+ }
++/// Candidate entries are columns, but the capacity is measured in sections.
++/// Leave the rest of a partially submitted column dirty for the next update.
++fn take_mesh_sections(world: &mut World, x: i32, z: i32, sections: u32, room: &mut usize) -> u32 {
++    let mut submitted = 0u32;
++    for sy in section_indexes(sections).take(*room) {
++        submitted |= 1 << sy;
++    }
++    *room -= submitted.count_ones() as usize;
++    world.dirty_sections.take_column(x, z);
++    for sy in section_indexes(sections & !submitted) {
++        world.dirty_sections.insert((x, sy, z));
++    }
++    submitted
++}
+ #[cfg(test)]
+ mod tests {
+     use super::*;
++
++    #[test]
++    fn stale_and_unloaded_mesh_jobs_keep_capacity_until_the_result_arrives() {
++        let mut jobs = MeshJobs::default();
++        let mut latest = FxHashMap::default();
++        // Successive jobs for one section supersede its sequence, but each
++        // snapshot remains owned by a worker until its result is consumed.
++        for sequence in 0..32 {
++            jobs.submitted();
++            latest.insert((0, 0, 0), sequence);
++        }
++        assert_eq!(latest.len(), 1);
++        assert_eq!(jobs.room(1), 0);
++        latest.clear(); // Forget/reload invalidates keys, not outstanding jobs.
++        assert_eq!(jobs.room(1), 0);
++        for room in 1..=32 {
++            jobs.completed();
++            assert_eq!(jobs.room(1), room);
++        }
++    }
++
++    #[test]
++    fn mesh_submission_bounds_sections_and_keeps_the_remainder_dirty() {
++        let mut world = World::new(horizon_world::registry::BlockStateId(0), 0);
++        for x in 0..3 {
++            for sy in 0..SECTIONS as i32 {
++                world.dirty_sections.insert((x, sy, 0));
++            }
++        }
++        let full = (1 << SECTIONS) - 1;
++        let mut room = SECTIONS + 1;
++        assert_eq!(take_mesh_sections(&mut world, 0, 0, full, &mut room), full);
++        assert_eq!(take_mesh_sections(&mut world, 1, 0, full, &mut room), 1);
++        assert_eq!(room, 0);
++        assert_eq!(world.dirty_sections.len(), SECTIONS * 2 - 1);
++        assert!(!world.dirty_sections.contains(&(1, 0, 0)));
++        for sy in 1..SECTIONS as i32 {
++            assert!(world.dirty_sections.contains(&(1, sy, 0)));
++        }
++        // The next update can finish that column rather than losing its work.
++        let mut room = SECTIONS;
++        assert_eq!(
++            take_mesh_sections(&mut world, 1, 0, full & !1, &mut room),
++            full & !1
++        );
++        assert_eq!(room, 1);
++        assert_eq!(world.dirty_sections.len(), SECTIONS);
++    }
+ 
+     /// The frame never waits for a worker: while one holds the mailbox, the
+     /// frame takes nothing and finds the results, in order, the next time.

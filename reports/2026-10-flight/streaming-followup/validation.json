@@ -1,0 +1,14 @@
+{
+  "base_commit": "89b737d88aeb315ea6cb20d96d09332e2551d814",
+  "upstream_pr": 3961,
+  "changed_file": "crates/horizon-client-render/src/streaming.rs",
+  "insertions": 87,
+  "deletions": 3,
+  "cargo_run_for_extraction": false,
+  "game_run_for_extraction": false,
+  "apply_check": true,
+  "reverse_apply_check": true,
+  "normalized_apply_roundtrip": true,
+  "rustfmt_check": true,
+  "patch_sha256": "75a4e1bfb7f3640cd978562aee0ecfca91eccca1a9786c512bacfb802282416a"
+}
