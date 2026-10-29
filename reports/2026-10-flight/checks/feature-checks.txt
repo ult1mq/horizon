@@ -1,0 +1,37 @@
+Allocator feature compilation checks (Windows x86_64 MSVC)
+Date: 2026-10-30
+Source base: bd665f28ad637cd256074ce74cf1e7607c4bceb8
+Worktree: work/pr-allocator, with frozen allocator PR changes.
+
+All commands used the same task-local Cargo/Rust state and shared target cache,
+through work/pr_exec.py. They ran sequentially, without another Cargo process.
+
+PASS, exit 0 (35.74 s):
+cargo check --locked -p horizon-client --bin horizon-client
+Log: check-baseline.log
+
+PASS, exit 0 (28.92 s):
+cargo check --locked -p horizon-client --bin horizon-client --features windows-segment-heap
+Log: check-segment-heap.log
+
+PASS, exit 0 (17.08 s):
+cargo check --locked -p horizon-client --bin horizon-client --features windows-mimalloc
+Log: check-mimalloc.log
+
+PASS, exit 0 (16.68 s):
+cargo check --locked -p horizon-client --bin horizon-client --features windows-segment-heap,windows-mimalloc
+Log: check-both.log
+
+These checks compile/type-check the client and run its resource build script.
+They do not link the full game executable, launch it, or measure performance.
+Actual linking/manifest/icon checks were performed separately on minimal PE
+probes using the PR's actual build.rs; see resource-validation.json.
+
+The independent locked/offline Cargo graph matrix additionally covered all four
+combinations on Windows and Linux targets. mimalloc appeared only on Windows
+with windows-mimalloc enabled. Linux-target dependency inspection was not a Linux
+compilation or runtime test.
+
+Full project readiness check:
+python tools/pr_ready.py --base origin/main --quick
+Result is recorded separately in pr-ready-quick.log and readiness-summary.txt.

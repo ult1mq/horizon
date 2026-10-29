@@ -1,0 +1,39 @@
+Allocator PR readiness check (sanitized)
+Date: 2026-10-30
+Environment: Windows x86_64 MSVC, task-local Rust/Cargo state.
+Base: origin/main, bd665f28ad637cd256074ce74cf1e7607c4bceb8
+Command: python tools/pr_ready.py --base origin/main --quick
+Result: exit 1 after 8 minutes 12 seconds; this is NOT a green full check.
+
+PASS: scope 7 files (+119 -1); lockfile changed with a manifest; public tree;
+rustfmt; workspace clippy; doc tests (2 passed); ignored content-root tests
+(4 passed); launcher rustfmt; launcher clippy; launcher tests (270 passed).
+
+FAIL: Python tests: 475 run, 1 failure, 11 skipped.
+Failure: test_parity_runner.WorkspaceManifestTests.test_a_feature_of_a_workspace_crate_counts_through_its_sources
+Expected both crates/horizon-items/Cargo.toml and crates/horizon-client/Cargo.toml;
+actual set empty. Independently reproduced on untouched base; see baseline-checks.txt.
+
+FAIL: selected workspace Rust tests: 709 passed, 1 failed before Cargo stopped.
+Failure: title::tests::each_world_preset_writes_its_own_generator
+crates/horizon-client/src/title/tests.rs:963
+unwrap failed with Windows OS error 267 (NotADirectory).
+The failing horizon-client library alone reported 687 passed, 1 failed, 20 ignored.
+Remaining workspace targets after that failure were not exercised by that command.
+Static inspection: the fixture joins a registry ID such as minecraft:normal into
+a directory name; the colon is invalid in a Windows directory component.
+Independent untouched-base reproduction: CONFIRMED on commit bd665f28a, exit 1.
+Command: cargo test -p horizon-client --lib title::tests::each_world_preset_writes_its_own_generator --locked
+Result: 0 passed, 1 failed, 707 filtered out; same Windows OS error 267 at
+title/tests.rs:963. Log: baseline-title.log. Baseline checkout remains clean.
+
+SKIPPED/DEFERRED: 354 affected vanilla parity harnesses (the requested --quick
+mode lists them for CI); theme token test (theme unchanged).
+
+All four allocator feature cargo-check variants passed separately; see
+feature-checks.txt. These are compile checks, not linked-game runtime validation
+or new performance measurements. Isolated linked PE resource checks are in
+resource-validation.json. No source fixes were made for unrelated check failures.
+
+Raw full readiness output: pr-ready-quick.log (contains local toolchain paths).
+This summary omits machine names and absolute user/temporary paths.

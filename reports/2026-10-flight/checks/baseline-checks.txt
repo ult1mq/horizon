@@ -44,3 +44,17 @@ The same optimized-profile assertion was observed in the mesh-reuse branch.
 Reproducing it on the untouched base establishes that it predates these patches
 in this Windows environment. It is still a failed test and is not counted as a
 passing full suite. The debug-profile result can differ.
+
+Independent client-library baseline check
+Same untouched commit; check-out remains clean after the run.
+Command:
+cargo test -p horizon-client --lib title::tests::each_world_preset_writes_its_own_generator --locked
+
+Result: exit 1; 0 passed, 1 failed, 707 filtered out.
+Failure: title::tests::each_world_preset_writes_its_own_generator
+crates/horizon-client/src/title/tests.rs:963
+unwrap failed with Windows OS error 267 (NotADirectory).
+This exactly reproduces the allocator branch's failing title fixture on the
+untouched base. Its registry-ID directory name contains a colon, which is not a
+valid Windows directory component. No source changes were made to address it.
+Raw log: allocator/baseline-title.log (local paths omitted from this summary).
