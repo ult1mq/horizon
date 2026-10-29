@@ -1,0 +1,19 @@
+{
+  "fresh": {
+    "samples": 9,
+    "iterations_per_sample": 4096,
+    "median_us_per_fill": 11.1811279296875,
+    "min_us_per_fill": 10.962207031250001,
+    "max_us_per_fill": 13.852294921875
+  },
+  "reused": {
+    "samples": 9,
+    "iterations_per_sample": 4096,
+    "median_us_per_fill": 10.50546875,
+    "min_us_per_fill": 10.202587890625,
+    "max_us_per_fill": 10.952685546875001
+  },
+  "median_change_percent": -6.042853493282441,
+  "scratch_bytes": 56384,
+  "scope": "Isolated padded block/light reads only; fresh and retained scratch paths in the same branch. Not origin/main A/B, not whole-mesher timings, and not FPS. No significance claim."
+}
