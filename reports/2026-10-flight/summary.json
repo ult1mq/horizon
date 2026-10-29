@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "base_commit": "baa379d71777f06a95b4e7650b2209a3d4209033",
+  "current_pr_base_was_not_benchmarked": "bd665f28a",
+  "hardware": {
+    "os": "Windows 11",
+    "cpu": "Intel Core i9-13900K",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "resolution": [
+      2560,
+      1440
+    ],
+    "backend": "Vulkan",
+    "monitor_hz": 165
+  },
+  "protocol": {
+    "runs_per_variant": 1,
+    "initial_passes": 4,
+    "flight_blocks": 256,
+    "flight_seconds": 8,
+    "initial_settle_seconds": 5,
+    "warm_render_distance": 64,
+    "warm_seconds": 20,
+    "measured_render_distance": 16,
+    "settle_seconds": 12,
+    "simulation_distance": 9,
+    "lod_distance": 64,
+    "lod_detail": "full",
+    "worker_setting": 0,
+    "observed_worker_threads": 31,
+    "initial_max_fps": 160,
+    "in_game_vsync": false,
+    "nvidia_global_vsync": "forced on (read-only driver inspection)",
+    "extended_settle_seconds": 45,
+    "extended_passes": 8,
+    "extended_max_fps_option": 260,
+    "extended_option_meaning": "unlimited in this game",
+    "native_sampler_hz_initial_runs": 20,
+    "native_sampler_seconds_initial_runs": 15,
+    "native_sampler_used_in_sustained_run": false
+  },
+  "chart_source": {
+    "data_json_sha256": "16ad119182b1d782d2c803b9c60fc69dac85a34364c7a824a5d991bb03f69a88",
+    "data_json_gz_sha256": "66e27455f28cfac45ac0c8d6cf93c0ceb31905b5ffe3bf259a3179ff197cede6",
+    "prepare_evidence_py_sha256": "2aa99d184d9b720ce0c530d284bc8b959a3186da436233cf603e5120b183ab16"
+  },
+  "aggregates": {
+    "stock": {
+      "aggregate_initial": {
+        "frames": 3027,
+        "seconds": 31.98656223154068,
+        "average_fps": 94.63348946624828,
+        "p50_ms": 9.462599754333496,
+        "p95_ms": 17.09429931640625,
+        "p99_ms": 36.594200134277344,
+        "max_ms": 54.67399978637695,
+        "frames_over_16_67_ms": 158,
+        "frames_over_25_ms": 79
+      }
+    },
+    "segment": {
+      "aggregate_initial": {
+        "frames": 4432,
+        "seconds": 32.01555009794235,
+        "average_fps": 138.43272992160288,
+        "p50_ms": 6.769400119781494,
+        "p95_ms": 9.35770034790039,
+        "p99_ms": 10.78320026397705,
+        "max_ms": 29.572500228881836,
+        "frames_over_16_67_ms": 2,
+        "frames_over_25_ms": 2
+      }
+    },
+    "final": {
+      "aggregate_initial": {
+        "frames": 4652,
+        "seconds": 32.006756500244144,
+        "average_fps": 145.3443119100342,
+        "p50_ms": 6.573400020599365,
+        "p95_ms": 8.575699806213379,
+        "p99_ms": 10.441900253295898,
+        "max_ms": 31.615398406982425,
+        "frames_over_16_67_ms": 2,
+        "frames_over_25_ms": 2
+      }
+    },
+    "sustained": {
+      "aggregate_initial": {
+        "frames": 4644,
+        "seconds": 32.00989466285706,
+        "average_fps": 145.08014002897372,
+        "p50_ms": 6.565799713134766,
+        "p95_ms": 8.75510025024414,
+        "p99_ms": 10.777000427246094,
+        "max_ms": 29.552400588989254,
+        "frames_over_16_67_ms": 2,
+        "frames_over_25_ms": 2
+      },
+      "aggregate_late": {
+        "frames": 10562,
+        "seconds": 64.01135600996018,
+        "average_fps": 165.00197243683684,
+        "p50_ms": 6.058199882507324,
+        "p95_ms": 6.797399997711182,
+        "p99_ms": 7.88979959487915,
+        "max_ms": 9.785999298095703,
+        "frames_over_16_67_ms": 0,
+        "frames_over_25_ms": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "flight": "forward",
+  "sampling_hz": 20,
+  "flight_samples": 242,
+  "process_heap_lock_wait_samples": 112,
+  "sample_fraction_percent": 46.28099173553719,
+  "interpretation": "sampled wall-time occupancy, not exact percentage of frame cost; sampler period can alias periodic chunk work",
+  "all_samples": 300,
+  "all_heap_wait_samples": 121,
+  "first_game_callers": {
+    "0x2b36479": 65,
+    "0x16b5b5d": 12,
+    "0x121d34d": 6,
+    "0xa0dd2e": 5,
+    "0x189d365": 5,
+    "0x16b5bb2": 5,
+    "0x562b0": 5,
+    "0x2b3648f": 4,
+    "0x28a5ad7": 1,
+    "0x174bf57": 1,
+    "0x174efdc": 1,
+    "0x1901275": 1,
+    "0x27ff507": 1
+  },
+  "verified_heap_function_ranges": {
+    "RtlEnterCriticalSection": [
+      "0x127f0",
+      "0x128e4"
+    ],
+    "RtlAllocateHeap_entry": [
+      "0x25c50",
+      "0x2674b"
+    ],
+    "RtlReAllocateHeap_entry": [
+      "0x48380",
+      "0x4844c"
+    ],
+    "RtlFreeHeap_entry": [
+      "0x1cbe0",
+      "0x1d69c"
+    ]
+  },
+  "verified_import_call": {
+    "caller_return_rva": "0x2b36479",
+    "preceding_call_instruction_rva": "0x2b36473",
+    "iat_rva": "0x2c14510",
+    "import": "kernel32.dll!HeapReAlloc",
+    "previous_import": "kernel32.dll!GetProcessHeap"
+  },
+  "exact_heap_ancestry_combinations": {
+    "alloc_only": 22,
+    "realloc_only": 28,
+    "free_only": 25,
+    "alloc_and_realloc": 19,
+    "realloc_and_free": 18
+  },
+  "max_suspended_ms": 0.36530010402202606,
+  "avg_suspended_ms": 0.13266610893736447,
+  "unreliable_symbols": "Nearest-export labels withlarge offsets, e.g.hid_write andwglSwapLayerBuffers, are not function identities. Rustsource functions cannot be mapped to native RVAs withoutmatching PDB.",
+  "source_scope": "Separate main-thread sampling observation on the stock executable; not an isolated Rust-function profile."
+}
